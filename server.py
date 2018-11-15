@@ -1,7 +1,9 @@
 from flask import Flask, request, jsonify
 from flask_uploads import UploadSet, configure_uploads, IMAGES
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 photos = UploadSet('photos', IMAGES)
 
@@ -29,15 +31,47 @@ class HttpError(Exception):
         rv['message'] = self.message
         return rv
 
+
 @app.errorhandler(HttpError)
 def handle_invalid_usage(error):
     response = jsonify(error.to_dict())
     response.status_code = error.status_code
     return response
 
-@app.route('/upload', methods=['POST'])
-def upload():
+
+@app.route('/colormodeltransform', methods=['POST'])
+def color_model_transform():
     if 'photo' in request.files:
         filename = photos.save(request.files['photo'])
-        return jsonify({'file': filename, 'url': DEV_PHOTO_URL + filename})
+        model_space = request.form['model_space']
+        return jsonify({'file': filename, 'urls': [DEV_PHOTO_URL + filename]})
+    raise HttpError('Bad request', status_code=400)
+
+
+@app.route('/intensityslice', methods=['POST'])
+def intensity_slice():
+    if 'photo' in request.files:
+        filename = photos.save(request.files['photo'])
+        slices = request.form['intensity_slices']
+        interval_colors = request.form['interval_colors']
+        return jsonify({'file': filename, 'urls': [DEV_PHOTO_URL + filename]})
+    raise HttpError('Bad request', status_code=400)
+
+
+@app.route('/graytocolor', methods=['POST'])
+def gray_to_color_transform():
+    if 'photo' in request.files:
+        filename = photos.save(request.files['photo'])
+        phase_shifts = request.form['phase_shifts']
+        return jsonify({'file': filename, 'urls': [DEV_PHOTO_URL + filename]})
+    raise HttpError('Bad request', status_code=400)
+
+
+@app.route('/smoothensharpen', methods=['POST'])
+def smoothen_sharpen():
+    if 'photo' in request.files:
+        filename = photos.save(request.files['photo'])
+        model_space = request.form['model_space']
+        operation = request.form['operation']
+        return jsonify({'file': filename, 'urls': [DEV_PHOTO_URL + filename]})
     raise HttpError('Bad request', status_code=400)
