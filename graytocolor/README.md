@@ -1,7 +1,7 @@
 # GrayToColor
 ## Requires simpleeval:  
-```python
-pip install simpleeval
+```bash
+$ pip install simpleeval
 ```
 ---
 ## tester<span>.py</span> usage:
