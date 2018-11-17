@@ -1,4 +1,3 @@
-import math
 import numpy as np
 
 import simpleeval   # https://github.com/danthedeckie/simpleeval
@@ -6,11 +5,10 @@ import simpleeval   # https://github.com/danthedeckie/simpleeval
 
 class UserFuncEval:
     def __init__(self):
-        other_functions = {"sin": math.sin, "cos": math.cos, "tan": math.tan, "abs": abs}
+        other_functions = {"sin": np.sin, "cos": np.cos, "tan": np.tan, "abs": abs}
         self.s = simpleeval.SimpleEval()
-        self.all_functions = simpleeval.DEFAULT_FUNCTIONS.copy()
-        self.all_functions.update(other_functions)
-        self.s.names = {"x": np.arange(256), "pi": math.pi}
+        self.s.functions.update(other_functions)
+        self.s.names = {"x": np.arange(256), "pi": np.pi}
         self.output = None
 
     # input is a string of the user input function
