@@ -10,7 +10,7 @@ class UserFuncEval:
         self.s = simpleeval.SimpleEval()
         self.all_functions = simpleeval.DEFAULT_FUNCTIONS.copy()
         self.all_functions.update(other_functions)
-        self.s.names = {"x": np.arange(256)}
+        self.s.names = {"x": np.arange(256), "pi": math.pi}
         self.output = None
 
     # input is a string of the user input function
@@ -18,7 +18,7 @@ class UserFuncEval:
     def update(self, input, var_substitutions = None):
         if var_substitutions:  # and type(var_substitutions) == type(dict()):
             self.s.names = var_substitutions
-            print("var_substitutions")
+            # print("var_substitutions")
         
         # self.output = self.s.eval(input)
         try:
