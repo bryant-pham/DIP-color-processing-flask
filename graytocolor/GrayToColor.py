@@ -27,11 +27,7 @@ class GrayToColor:
         else:
             self.orig_image = orig_image
         
-        self.processed_image = self.orig_image
-
-        self.blue_input = "x"
-        self.green_input = "x"
-        self.red_input = "x"
+        # self.processed_image = self.orig_image
 
         self.blue_ufe = ufe.UserFuncEval()
         self.green_ufe = ufe.UserFuncEval()
@@ -41,6 +37,8 @@ class GrayToColor:
 
         # np.vectorize(lookup_dict.get)(some_ndarray).astype(np.uint8)
         self.vec_dict_get = np.vectorize(dict.get)
+
+        self.updateImage({"blue": "x", "green": "x", "red": "x"})
 
     # changed_inputs holds a dictionary of a key: {"blue","green","red"}
     # and a value: {string of the function for that color}
@@ -75,7 +73,7 @@ class GrayToColor:
                 self.valid_functions["red"] = True
                 self.processed_red = self.vec_dict_get(self.red_dict, self.orig_image).astype(np.uint8)
         
-        return reduce((lambda x,y: x or y), self.valid_functions.values())
+        return reduce((lambda x,y: x and y), self.valid_functions.values())
 
     def getProcessedImage(self):
         return cv2.merge((self.processed_blue, self.processed_green, self.processed_red))
@@ -88,3 +86,5 @@ class GrayToColor:
 
 # todo: need to normalize function values after matching them in a dictionary and before sending them out
 #       (it currently performs modulo for values mapping out of the range [0, 255], and the user wouldn't be expecting that modulo in the function they wrote)
+#
+#       refactoring. make a dictionary to hold all channels instead of creating a variable for each attribute of each channel
