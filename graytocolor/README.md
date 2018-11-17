@@ -4,12 +4,10 @@
 $ pip install simpleeval
 ```
 ---
-## tester<span>.py</span> usage:
+## testg2c usage:
 ```
-$ python tester.py
-or
->>> from tester import *
->>> main()
+>>> from testg2c import *
+>>> testg2c()
 ```
 ---
 ## GrayToColor usage:  
