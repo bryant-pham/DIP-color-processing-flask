@@ -1,3 +1,6 @@
+# todo: need to normalize function values after matching them in a dictionary and before sending them out
+#       (it currently performs modulo for values mapping out of the range [0, 255], and the user wouldn't be expecting that modulo in the function they wrote)
+
 import numpy as np
 from math import *
 import cv2
@@ -7,12 +10,15 @@ from functools import reduce
 """
 import GrayToColor as g2c
 g2c = g2c.GrayToColor(lenna_img)
-if g2c.updateImage({"blue": "255 - x", "green": "x", "red": "255 - x"}):  # x is intensity of original image
+# x is intensity of original image:
+if g2c.updateImage({"blue": "255 - x", "green": "x", "red": "255 - x"}):
     processed_image = g2c.getProcessedImage()
 else:
     # there is an invalid function. check g2c.valid_functions (dict) for the specific channel
     print("Valid functions: " + g2c.valid_functions)
+processed_image_2 = g2c.getProcessedImage(g2c.presets[3])
 """
+
 class GrayToColor:
     def __init__(self, orig_image):
         # make sure image is grayscale before processing
@@ -26,64 +32,70 @@ class GrayToColor:
         else:
             self.orig_image = orig_image
         
-        # self.processed_image = self.orig_image
+        self.processed_image = self.orig_image.copy()
 
-        self.blue_ufe = ufe.UserFuncEval()
-        self.green_ufe = ufe.UserFuncEval()
-        self.red_ufe = ufe.UserFuncEval()
-
-        self.valid_functions = {"blue": False, "green": False, "red": False}
-
-        # np.vectorize(lookup_dict.get)(some_ndarray).astype(np.uint8)
         self.vec_dict_get = np.vectorize(dict.get)
 
-        self.updateImage({"blue": "x", "green": "x", "red": "x"})
+        self.ufe = {
+            "blue":     ufe.UserFuncEval(),
+            "red":      ufe.UserFuncEval(),
+            "green":    ufe.UserFuncEval(),
+        }
+        self.trans_dict = {"blue": dict(), "green": dict(), "red": dict()}
+        self.input_strings = {"blue": "x", "green": "x", "red": "x"}
+        self.valid_functions = {"blue": False, "green": False, "red": False}
+        self.processed_channels = {"blue": None, "green": None, "red": None}
+        self.updateImage(self.input_strings)
+
+    def processChannel(self, channel, func_string):
+        self.input_strings[channel] = func_string
+        if not self.ufe[channel].update(self.input_strings[channel]):
+            self.valid_functions[channel] = False
+        else:
+            self.trans_dict[channel] = dict(enumerate(self.ufe[channel].getOutput()))
+            self.valid_functions[channel] = True
+            self.processed_channels[channel] = \
+                self.vec_dict_get(self.trans_dict[channel], self.orig_image).astype(np.uint8)
 
     # changed_inputs holds a dictionary of a key: {"blue","green","red"}
-    # and a value: {string of the function for that color}
-    # example usage: g2c.updateImage({"red": "10 * x + y"})  # returns True if the function is valid
-    # you can build presets using static strings
-    # each color channel is processed only after a successful parse, otherwise it is left untouched and valid_functions["color"] is set to False
+    # and a value: <string of the function for that color>
+    # returns True if processing was successful, otherwise False
+    # example usage: g2c.updateImage({"red": "10 * x + y"})
+    # if True is returned, you may retrieve the processed image with getProcessedImage()
+        # self.processed_image will not be updated until getProcessedImage() is called
+        # >>> my_image = g2c.getProcessedImage()
+    # else if False is returned, see which functions are invalid through printing valid_functions
+        # >>> g2c.valid_functions
+    # save processing time by only passing potentially changed channel inputs. eg don't pass the function for "blue" if the user hasn't changed it
     def updateImage(self, changed_inputs):
         if "blue" in changed_inputs:
-            self.blue_input = changed_inputs["blue"]
-            if not self.blue_ufe.update(self.blue_input):
-                self.valid_functions["blue"] = False
-            else:
-                self.blue_dict = dict(enumerate(self.blue_ufe.getOutput()))
-                self.valid_functions["blue"] = True
-                self.processed_blue = self.vec_dict_get(self.blue_dict, self.orig_image).astype(np.uint8)
-
+            self.processChannel("blue", changed_inputs["blue"])
         if "green" in changed_inputs:
-            self.green_input = changed_inputs["green"]
-            if not self.green_ufe.update(self.green_input):
-                self.valid_functions["green"] = False
-            else:
-                self.green_dict = dict(enumerate(self.green_ufe.getOutput()))
-                self.valid_functions["green"] = True
-                self.processed_green = self.vec_dict_get(self.green_dict, self.orig_image).astype(np.uint8)
-
+            self.processChannel("green", changed_inputs["green"])
         if "red" in changed_inputs:
-            self.red_input = changed_inputs["red"]
-            if not self.red_ufe.update(self.red_input):
-                self.valid_functions["red"] = False
-            else:
-                self.red_dict = dict(enumerate(self.red_ufe.getOutput()))
-                self.valid_functions["red"] = True
-                self.processed_red = self.vec_dict_get(self.red_dict, self.orig_image).astype(np.uint8)
-        
-        return reduce((lambda x,y: x and y), self.valid_functions.values())
+            self.processChannel("red", changed_inputs["red"])
+        return reduce((lambda x, y: x and y), self.valid_functions.values())
 
     def getProcessedImage(self):
-        return cv2.merge((self.processed_blue, self.processed_green, self.processed_red))
+        return cv2.merge(tuple([self.processed_channels[c] for c in ["blue", "green", "red"]]))
 
-    
-
-    # dict(enumerate(blue_dict))
-    # dict(enumerate(green_dict))
-    # dict(enumerate(red_dict))
-
-# todo: need to normalize function values after matching them in a dictionary and before sending them out
-#       (it currently performs modulo for values mapping out of the range [0, 255], and the user wouldn't be expecting that modulo in the function they wrote)
-#
-#       refactoring. make a dictionary to hold all channels instead of creating a variable for each attribute of each channel
+    presets = {
+        1: {
+            "description": "negative",
+            "blue":     "255-x",
+            "green":    "255-x",
+            "red":      "255-x"
+        },
+        2: {
+            "description": "purple tint",
+            "blue":     "x/3+170",
+            "green":    "x/3",
+            "red":      "x/3+85"
+        },
+        3: {
+            "description": "generic abs(sin(x))",
+            "blue":     "abs(sin(-x/30 + 0*pi/3 - 0.2))*255",
+            "green":    "abs(sin(-x/30 + 1*pi/3 - 0.2))*255",
+            "red":      "abs(sin(-x/30 + 2*pi/3 - 0.2))*255"
+        }
+    }

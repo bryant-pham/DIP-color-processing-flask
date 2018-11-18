@@ -1,6 +1,9 @@
 """
 >>> from testg2c import *
 >>> testg2c()
+>>> testg2c(preset=3)
+>>> testg2c({"blue": "255-x", "green": "255-x", "red": "255-x"})
+>>> testg2c("255-x", "255-x", "255-x")  # order: blue, green, red
 """
 
 lenna_loc = "lenna.png"
@@ -13,12 +16,22 @@ lenna = cv2.imread(lenna_loc)
 lenna_gray = cv2.imread(lenna_loc, 0)
 g2c = g2c.GrayToColor(lenna)
 
-def showImage(image):
-	cv2.imshow('image', image)
+def showImage(image, desc="image"):
+	cv2.imshow(desc, image)
 	cv2.waitKey(0)
 	cv2.destroyAllWindows()
 
-def testg2c(*args):
+def testg2c(*args, **kwargs):
+	if "preset" in kwargs:
+		if kwargs["preset"] not in g2c.presets:
+			return "Valid presets: " + set(g2c.presets.values())
+		desc = g2c.presets[kwargs["preset"]]["description"]
+		if len(desc) > 40:
+			desc = desc[:37] + "..."
+		g2c.updateImage(g2c.presets[kwargs["preset"]])
+		showImage(g2c.getProcessedImage(), desc)
+		return
+
 	if len(args) > 3:
 		return "This function does not support more than 3 arguments"
 	elif len(args) == 2:
@@ -26,9 +39,7 @@ def testg2c(*args):
 	elif len(args) == 3:
 		b,g,r = args
 	elif len(args) == 0:
-		b = "abs(sin(-x/30 + 0*pi/3))*255"
-		g = "abs(sin(-x/30 + 1*pi/3))*255"
-		r = "abs(sin(-x/30 + 2*pi/3))*255"
+		return testg2c(preset=3)
 	elif len(args) == 1:
 		# assuming kwargs[0] is a dictionary already
 		if g2c.updateImage(args[0]):
