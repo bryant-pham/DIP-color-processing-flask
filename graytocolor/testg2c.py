@@ -1,8 +1,10 @@
 """
 # make sure lenna.png is in this directory
 >>> from testg2c import *
+>>> showImage(lenna)
+>>> showImage(lenna_gray, "lenna - grayscale")
 >>> testg2c()
->>> testg2c(preset=3)
+>>> testg2c(preset=3)  # there are 6 presets!
 >>> testg2c({"blue": "255-x", "green": "255-x", "red": "255-x"})
 >>> testg2c("255-x", "255-x", "255-x")  # order: blue, green, red
 """

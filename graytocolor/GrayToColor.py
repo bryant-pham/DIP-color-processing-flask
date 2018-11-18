@@ -1,5 +1,7 @@
 # todo: need to normalize function values after matching them in a dictionary and before sending them out
 #       (it currently performs modulo for values mapping out of the range [0, 255], and the user wouldn't be expecting that modulo in the function they wrote)
+# analysis idea:
+#       plot trans_dict over the domain [0,255] and compare it to a plot for intensity slicing
 
 import numpy as np
 from math import *
@@ -10,12 +12,13 @@ from functools import reduce
 """
 import GrayToColor as g2c
 g2c = g2c.GrayToColor(lenna_img)
+print("Valid operations: " + str(g2c.getValidOperations()))
 # x is intensity of original image:
 if g2c.updateImage({"blue": "255 - x", "green": "x", "red": "255 - x"}):
     processed_image = g2c.getProcessedImage()
 else:
     # there is an invalid function. check g2c.valid_functions (dict) for the specific channel
-    print("Valid functions: " + g2c.valid_functions)
+    print("Valid functions: " + str(g2c.valid_functions))
 processed_image_2 = g2c.getProcessedImage(g2c.presets[3])
 """
 
@@ -79,6 +82,9 @@ class GrayToColor:
     def getProcessedImage(self):
         return cv2.merge(tuple([self.processed_channels[c] for c in ["blue", "green", "red"]]))
 
+    def getValidOperations(self):
+        return self.ufe["blue"].getValidOperations()
+
     presets = {
         1: {
             "description": "negative",
@@ -97,5 +103,23 @@ class GrayToColor:
             "blue":     "abs(sin(-x/30 + 0*pi/3 - 0.2))*255",
             "green":    "abs(sin(-x/30 + 1*pi/3 - 0.2))*255",
             "red":      "abs(sin(-x/30 + 2*pi/3 - 0.2))*255"
+        },
+        4: {
+            "description": "generic triangle wave",
+            "blue":     "abs(mod(x+0,60)-30)*255/30",
+            "green":    "abs(mod(x+20,60)-30)*255/30",
+            "red":      "abs(mod(x+30,60)-30)*255/30"
+        },
+        5: {
+            "description": "generic sawtooth wave",
+            "blue":     "mod(x+0,60)/(60-1)*255",
+            "green":    "mod(x+20,60)/(60-1)*255",
+            "red":      "mod(x+40,60)/(60-1)*255"
+        },
+        6: {
+            "description": "generic haversin wave",
+            "blue":     "(1-cos(x/30+0*pi/3))/2*255",
+            "green":    "(1-cos(x/30+1*pi/3))/2*255",
+            "red":      "(1-cos(x/30+2*pi/3))/2*255"
         }
     }
