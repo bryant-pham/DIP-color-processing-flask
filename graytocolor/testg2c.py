@@ -27,34 +27,40 @@ def showImage(image, desc="image"):
 def testg2c(*args, **kwargs):
 	if "preset" in kwargs:
 		if kwargs["preset"] not in g2c.presets:
-			return "Valid presets: " + set(g2c.presets.values())
+			return "Valid presets: " + str(set(g2c.presets.values()))
 		desc = g2c.presets[kwargs["preset"]]["description"]
 		if len(desc) > 40:
 			desc = desc[:37] + "..."
 		g2c.updateImage(g2c.presets[kwargs["preset"]])
 		showImage(g2c.getProcessedImage(), desc)
 		return
-
+	
 	if len(args) > 3:
 		return "This function does not support more than 3 arguments"
 	elif len(args) == 2:
 		return "This function does not support exactly 2 arguments"
 	elif len(args) == 3:
 		b,g,r = args
+		d = {"blue": b, "green": g, "red": r}
+		if g2c.updateImage(d):
+			showImage(g2c.getProcessedImage())
+			return "Functions used: " + str(d)
+		else:
+			return "Invalid functions provided: " + str(d)
 	elif len(args) == 0:
-		return testg2c(preset=3)
+		# show last processed image
+		showImage(g2c.getProcessedImage())
+		return
 	elif len(args) == 1:
 		# assuming kwargs[0] is a dictionary already
 		if g2c.updateImage(args[0]):
 			showImage(g2c.getProcessedImage())
+			return
 		else:
-			return "Invalid functions provided: ", args[0]
+			return "Invalid functions provided"
 	else:
 		return "Argument error"
+	return "Unknown error"
 	
-	d = {"blue": b, "green": g, "red": r}
-	if g2c.updateImage(d):
-		showImage(g2c.getProcessedImage())
-	else:
-		return "Invalid functions provided: ", d
-	
+def scaleImage(image, scale):
+	return cv2.resize(image, None, fx=scale, fy=scale)

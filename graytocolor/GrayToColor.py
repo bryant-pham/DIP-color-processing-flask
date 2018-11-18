@@ -2,6 +2,7 @@
 #       (it currently performs modulo for values mapping out of the range [0, 255], and the user wouldn't be expecting that modulo in the function they wrote)
 # analysis idea:
 #       plot trans_dict over the domain [0,255] and compare it to a plot for intensity slicing
+#       also plot the histogram of the original image with it
 
 import numpy as np
 from math import *
