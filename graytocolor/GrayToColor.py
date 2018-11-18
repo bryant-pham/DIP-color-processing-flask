@@ -20,7 +20,7 @@ else:
     # there is an invalid function. check g2c.valid_functions (dict) for the specific channel
     print("Valid functions: " + str(g2c.valid_functions))
 processed_image_2 = g2c.getProcessedImage(g2c.presets[3])
-g2c.loadNewImage(another_img)
+g2c.loadImage(another_img)
 """
 
 class GrayToColor:
@@ -83,7 +83,7 @@ class GrayToColor:
     def getProcessedImage(self):
         return cv2.merge(tuple([self.processed_channels[c] for c in ["blue", "green", "red"]]))
 
-    def loadNewImage(self, image):
+    def loadImage(self, image):
         self.__init__(image)
 
     def getValidOperations(self):
