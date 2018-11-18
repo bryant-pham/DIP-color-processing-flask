@@ -28,6 +28,7 @@ else:
     # there is an invalid function. check g2c.valid_functions (dict) for the specific channel
     print("Valid functions: " + str(g2c.valid_functions))
 processed_image_2 = g2c.getProcessedImage(g2c.presets[3])
+g2c.loadNewImage(another_img)
 ```
 
 ---
