@@ -11,10 +11,9 @@ if g2c.updateImage({"blue": "255 - x", "green": "x", "red": "255 - x"}):  # x is
     processed_image = g2c.getProcessedImage()
 else:
     # there is an invalid function. check g2c.valid_functions (dict) for the specific channel
-    pass
+    print("Valid functions: " + g2c.valid_functions)
 """
 class GrayToColor:
-
     def __init__(self, orig_image):
         # make sure image is grayscale before processing
         if len(orig_image.shape) == 3:

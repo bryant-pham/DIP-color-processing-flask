@@ -18,7 +18,7 @@ if g2c.updateImage({"blue": "255 - x", "green": "x", "red": "255 - x"}):  # x is
     processed_image = g2c.getProcessedImage()
 else:
     # there is an invalid function. check g2c.valid_functions (dict) for the specific channel
-    pass
+    print("Valid functions: " + g2c.valid_functions)
 ```
 
 ---
