@@ -1,4 +1,5 @@
 """
+# make sure lenna.png is in this directory
 >>> from testg2c import *
 >>> testg2c()
 >>> testg2c(preset=3)
