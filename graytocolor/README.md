@@ -5,6 +5,7 @@ $ pip install simpleeval
 ```
 ---
 ## testg2c usage:
+Place `lenna.png` into this folder.  
 ```python
 >>> from testg2c import *
 >>> showImage(lenna)
