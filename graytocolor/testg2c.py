@@ -1,10 +1,12 @@
+# todo: add trackbars and make the image update automatically
+
 """
 # make sure lenna.png is in this directory
 >>> from testg2c import *
 >>> showImage(lenna)
 >>> showImage(lenna_gray, "lenna - grayscale")
 >>> testg2c()
->>> testg2c(preset=3)  # there are 6 presets!
+>>> testg2c(preset=3)  # there are 10 presets! (located in GrayToColor.py)
 >>> testg2c({"blue": "255-x", "green": "255-x", "red": "255-x"})
 >>> testg2c("255-x", "255-x", "255-x")  # order: blue, green, red
 """
@@ -21,6 +23,12 @@ g2c = g2c.GrayToColor(lenna)
 
 def showImage(image, desc="image"):
 	cv2.imshow(desc, image)
+	cv2.waitKey(0)
+	cv2.destroyAllWindows()
+
+def showLastChannels():
+	for c in ["blue", "green", "red"]:
+		cv2.imshow(c, g2c.processed_channels[c])
 	cv2.waitKey(0)
 	cv2.destroyAllWindows()
 
