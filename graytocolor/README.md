@@ -21,7 +21,8 @@ Place `lenna.png` into this folder.
 import GrayToColor as g2c
 g2c = g2c.GrayToColor(lenna_img)
 print("Valid operations: " + str(g2c.getValidOperations()))
-# x is intensity of original image:
+# x is intensity of original image
+# each function maps domain:[0-255] to range:[0-255]
 if g2c.updateImage({"blue": "255 - x", "green": "x", "red": "255 - x"}):
     processed_image = g2c.getProcessedImage()
 else:
