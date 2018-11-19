@@ -8,7 +8,9 @@
 >>> testg2c()
 >>> testg2c(preset=3)  # there are 10 presets! (located in GrayToColor.py)
 >>> testg2c({"blue": "255-x", "green": "255-x", "red": "255-x"})
->>> testg2c("255-x", "255-x", "255-x")  # order: blue, green, red
+>>> testg2c("255-x", "255-x", "255-x")  # ordered as: blue, green, red
+>>> showLastChannels()
+>>> interactive(4)  # uses preset 4
 """
 
 lenna_loc = "lenna.png"
@@ -72,3 +74,52 @@ def testg2c(*args, **kwargs):
 	
 def scaleImage(image, scale):
 	return cv2.resize(image, None, fx=scale, fy=scale)
+
+# presets that don't have generators will not be interactive
+def interactive(preset):
+	current_preset = g2c.presets[preset]
+	processed_window_name = current_preset["description"]
+	ch_names = ["blue", "green", "red"]
+	cv2.namedWindow(processed_window_name)
+	for c in ch_names:
+		cv2.namedWindow(c)
+
+	def updateChannel(channel, func_getstr, arg_names):
+		def f(i):
+			d_args = dict()
+			for arg_name in arg_names:
+				d_args[arg_name] = cv2.getTrackbarPos(arg_name, channel)
+			# def c(x,y,z): return [x,y,z]
+			# c(**dict(zip(*(['z','y','x'],[1,2,3]))))
+			g2c.updateImage({channel: func_getstr(**d_args)})
+			cv2.imshow(processed_window_name, g2c.getProcessedImage())
+			cv2.imshow(channel, g2c.processed_channels[channel])
+		return f
+	
+	if "generator" in current_preset:
+		g = current_preset["generator"]
+		g_args = g["args"]
+		g_f = g["generate"]
+		d = dict()
+		for arg_name in g_args:
+			d[arg_name] = arg_name
+		print("equation: " + g_f(**d))  # description
+		# print("how trackbar values are used: " + g["description"]) # replaced by the line above
+		for c in ch_names:
+			callback = updateChannel(c, g_f, g_args)
+			for k,v in g_args.items():
+				cv2.createTrackbar(
+					k, c, v["default_value"], v["max_value"], callback
+				)
+			callback(None)  # processes this channel for the first time
+	else:
+		g2c.updateImage(g2c.presets[preset])
+	
+	cv2.imshow(processed_window_name, g2c.getProcessedImage())
+	for c in ch_names:
+		cv2.imshow(c, g2c.processed_channels[c])
+	
+	while cv2.waitKey(84) < 0:  # ~ 12 fps
+		pass
+
+	cv2.destroyAllWindows()
