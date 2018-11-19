@@ -1,4 +1,5 @@
 import numpy as np
+import ast
 
 import simpleeval   # https://github.com/danthedeckie/simpleeval
 """
@@ -8,8 +9,11 @@ $ pip install simpleeval
 class UserFuncEval:
     def __init__(self):
         other_functions = {"sin": np.sin, "cos": np.cos, "tan": np.tan, "abs": abs}
-        other_functions.update({"mod": np.mod, "sign": np.sign})
+        other_functions.update({"mod": np.mod, "sign": np.sign, "floor": np.floor, "ceil": np.ceil})
         self.s = simpleeval.SimpleEval()
+        self.s.operators[ast.Mult] = np.multiply
+        self.s.operators[ast.Pow] = np.power
+        self.s.operators[ast.Mod] = np.mod
         self.s.functions = simpleeval.DEFAULT_FUNCTIONS.copy()
         del self.s.functions["str"]
         del self.s.functions["rand"]
