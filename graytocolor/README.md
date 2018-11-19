@@ -11,7 +11,7 @@ Place `lenna.png` into this folder.
 >>> showImage(lenna)
 >>> showImage(lenna_gray, "lenna - grayscale")
 >>> testg2c()
->>> testg2c(preset=3)  # there are 6 presets!
+>>> testg2c(preset=3)  # there are 10 presets! (located in GrayToColor.py)
 >>> testg2c({"blue": "255-x", "green": "255-x", "red": "255-x"})
 >>> testg2c("255-x", "255-x", "255-x")  # order: blue, green, red
 ```

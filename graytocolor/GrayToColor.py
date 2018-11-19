@@ -111,20 +111,44 @@ class GrayToColor:
         },
         4: {
             "description": "generic triangle wave",
-            "blue":     "abs(mod(x+0,60)-30)*255/30",
-            "green":    "abs(mod(x+20,60)-30)*255/30",
-            "red":      "abs(mod(x+30,60)-30)*255/30"
+            "blue":     "abs(mod(x+0,80)-40)/(40)*255",
+            "green":    "abs(mod(x+12,80)-40)/(40)*255",
+            "red":      "abs(mod(x+24,80)-40)/(40)*255"
         },
         5: {
             "description": "generic sawtooth wave",
-            "blue":     "mod(x+0,60)/(60-1)*255",
-            "green":    "mod(x+20,60)/(60-1)*255",
-            "red":      "mod(x+40,60)/(60-1)*255"
+            "blue":     "mod(x+0,80)/(80)*255",
+            "green":    "mod(x+12,80)/(80)*255",
+            "red":      "mod(x+24,80)/(80)*255"
         },
         6: {
             "description": "generic haversin wave",
             "blue":     "(1-cos(x/30+0*pi/3))/2*255",
             "green":    "(1-cos(x/30+1*pi/3))/2*255",
             "red":      "(1-cos(x/30+2*pi/3))/2*255"
+        },
+        7: {
+            "description": "sin(x)**2 * cos(x)",  # https://www.desmos.com/calculator/1ujfl7qv3g
+            "blue":     "(sin({theta})**2*cos({theta})/0.7698 + 0.5)*255".format(theta="x/60+0*pi/3"),
+            "green":    "(sin({theta})**2*cos({theta})/0.7698 + 0.5)*255".format(theta="x/60+1*pi/3"),
+            "red":      "(sin({theta})**2*cos({theta})/0.7698 + 0.5)*255".format(theta="x/60+2*pi/3")
+        },
+        8: {
+            "description": "abs(sin(x))**2",
+            "blue":     "abs(sin(-x/30 + 0*pi/3 - 0.2))**2*255",
+            "green":    "abs(sin(-x/30 + 1*pi/3 - 0.2))**2*255",
+            "red":      "abs(sin(-x/30 + 2*pi/3 - 0.2))**2*255"
+        },
+        9: {
+            "description": "abs(sin(x))**(.5)",
+            "blue":     "abs(sin(-x/30 + 0*pi/3 - 0.2))**0.5*255",
+            "green":    "abs(sin(-x/30 + 1*pi/3 - 0.2))**0.5*255",
+            "red":      "abs(sin(-x/30 + 2*pi/3 - 0.2))**0.5*255"
+        },
+        10: {
+            "description": "sin(x)*(2-abs(sin(x/2)))**2",
+            "blue":     "(sin({theta})*(2-abs(sin({theta}/2))**2)/3.9+0.5)*255".format(theta="x/30+0*pi/3"),
+            "green":    "(sin({theta})*(2-abs(sin({theta}/2))**2)/3.9+0.5)*255".format(theta="x/30+1*pi/3"),
+            "red":      "(sin({theta})*(2-abs(sin({theta}/2))**2)/3.9+0.5)*255".format(theta="x/30+2*pi/3")
         }
     }
