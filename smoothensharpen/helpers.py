@@ -1,7 +1,7 @@
-# >>> from helpers import *
+# >>> from smoothensharpen.helpers import *
 
 import cv2
-import smoothensharpen as sns
+from smoothensharpen import smoothensharpen as sns
 
 def showImage(image):
 	cv2.imshow('image', image)
@@ -18,11 +18,11 @@ def showImages(images):
 
 
 
-lenna = cv2.imread("lenna.png")
+lenna = cv2.imread("Lenna.png")
 sns = sns.SmoothenSharpen(lenna)
 sns.loadKernel("gaussian")
 sns.applyFilter()
-sns.showImage(sns.getProcessedBGR())
-sns.showImage(sns.getProcessedHLS())
-sns.showImage(sns.getProcessedDiff())
+showImage(sns.getProcessedBGR())
+showImage(sns.getProcessedHLS())
+showImage(sns.getProcessedDiff())
 

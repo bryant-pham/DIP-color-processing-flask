@@ -1,7 +1,7 @@
 """
 warning: this class may raise exceptions
 usage:
->>> import smoothensharpen
+>>> from smoothensharpen import smoothenSharpen as sns
 >>> sns = smoothensharpen.SmoothenSharpen(some_image)
 >>> sns.loadKernel("gaussian")  # choose between "gaussian", "laplacian", "uniform"
 >>> sns.filter["kernel"]  # check kernel if desired. note that it is rotated 180 degrees
