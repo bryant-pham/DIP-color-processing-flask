@@ -14,7 +14,7 @@ CORS(app)
 photos = UploadSet('photos', IMAGES)
 
 # DEV_URL = 'http://127.0.0.1:5000/'
-DEV_URL = 'http://192.241.234.235:5000'
+DEV_URL = 'http://192.241.234.235:5000/'
 PHOTO_URL = DEV_URL + 'static/img/'
 G2C_PHOTO_URL = DEV_URL + 'static/g2c/'
 
