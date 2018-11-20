@@ -6,8 +6,16 @@ usage:
 >>> sns.loadKernel("gaussian")  # choose between "gaussian", "laplacian", "uniform"
 >>> sns.filter["kernel"]  # check kernel if desired. note that it is rotated 180 degrees
 >>> sns.applyFilter()
->>> final_image = sns.getProcessedImage()
-sns.loadImage(another_image)
+>>> filtered_bgr = sns.getProcessedBGR()
+>>> filtered_hls = sns.getProcessedHLS()
+>>> filtered_diff = sns.getProcessedDiff()
+>>> sns.loadImage(another_image)
+"""
+
+"""
+todo:
+    applyFilter()
+        adjust normalization to impact all 3 bgr channels at the same time
 """
 
 import numpy as np
@@ -19,10 +27,10 @@ class SmoothenSharpen:
     def __init__(self, input_image):
         # images must be color
         self.bgr_image = np.zeros((1,1,3))
-        if len(orig_image.shape) == 3:
-            if orig_image.shape[2] == 3:
+        if len(input_image.shape) == 3:
+            if input_image.shape[2] == 3:
                 self.bgr_image = input_image
-            elif orig_image.shape[2] == 4:
+            elif input_image.shape[2] == 4:
                 self.bgr_image = cv2.cvtColor(input_image, cv2.COLOR_BGRA2BGR)
             else:
                 raise _ERR_GRAY_INPUT
@@ -33,17 +41,16 @@ class SmoothenSharpen:
         # so we are using HLS, and applying the filters on the L channel
         self.hls_image = cv2.cvtColor(self.bgr_image, cv2.COLOR_BGR2HLS)
 
-        self.bgr_image_filtered = np.zeros(self.bgr_image.shape)
-        self.hls_image_filtered = np.zeros(self.hls_image.shape)
+        self.bgr_image_filtered = self.bgr_image.copy()
+        self.hls_image_filtered = self.hls_image.copy()
         self.filtered_difference = np.full(input_image.shape, 127)
         
         self.filter = {"description": "none", "kernel": np.array([[1]]), "radius": 0}
-        pass
 
     def loadImage(self, input_image):
         self.__init__(input_image)
 
-    def loadKernel(kernel_type, radius = 1, custom_kernel = None):
+    def loadKernel(self, kernel_type, radius = 1, custom_kernel = None):
         k_length = 2*radius + 1
         kernel = np.zeros((k_length,)*2)
 
@@ -77,22 +84,44 @@ class SmoothenSharpen:
         self.filter["kernel"] = np.fliplr(np.flipud(kernel))
         self.filter["radius"] = radius
 
-    def applyFilter():
+    def applyFilter(self):
         pad_mode = "edge"  # "constant" for 0 padding, "edge" for nearest edge padding
         r = self.filter["radius"]
+        d = r*2 + 1
+        k = self.filter["kernel"]
         bgr_padded = np.stack([np.pad(np.split(self.bgr_image, [1,2], 2)[x][:,:,0], r, pad_mode) for x in range(3)], axis=2)
         l_padded = np.pad(np.split(self.hls_image, [1,2], 2)[1][:,:,0], r, pad_mode)
 
         s = self.bgr_image.shape
-        for x in s[0]:
-            for y in s[1]:
-                # first pixel after padding is x+r, y+r
-                for c in s[2]:  # color channel
-                pass
-                # for wx in range(-r, r+1):
-                # for wy in range(-r, r+1):
-        # use dot product??
+        for x in range(s[0]):
+            for y in range(s[1]):
+                for c in range(s[2]):  # color channel
+                    self.bgr_image_filtered[x,y,c] = np.sum(k*bgr_padded[x:x+d,y:y+d,c])
+                self.hls_image_filtered[x,y,1] = np.sum(k*l_padded[x:x+d,y:y+d])
+        
+        # normalize filtered images
+        for c in range(s[2]):
+            self.bgr_image_filtered[:,:,c] = self.normalize(self.bgr_image_filtered[:,:,c], 256).clip(0,255)
+        self.hls_image_filtered[:,:,1] = self.normalize(self.hls_image_filtered[:,:,1], 256).clip(0,255)
 
-        pass
+        self.filtered_difference = np.full(s[:2], 127) \
+            + cv2.cvtColor(self.bgr_image_filtered, cv2.COLOR_BGR2GRAY).astype(np.int32) \
+            - self.hls_image_filtered[:,:,1]
+        self.filtered_difference = self.filtered_difference.astype(np.uint8)
 
-    def 
+    # n is number of bins (256 to cover uint8)
+    @classmethod
+    def normalize(cls, img, n):
+        # h is histogram, b is bins
+        h, b = np.histogram(img.flatten(), n)
+        # c is cdf
+        c = h.cumsum() - 1
+        c = c * (n - 1) / c[-1]
+        return np.interp(img.flatten(), b[:-1], c).reshape(img.shape)
+
+    def getProcessedBGR(self):
+        return self.bgr_image_filtered
+    def getProcessedHLS(self):
+        return cv2.cvtColor(self.hls_image_filtered, cv2.COLOR_HLS2BGR)
+    def getProcessedDiff(self):
+        return self.filtered_difference
