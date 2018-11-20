@@ -5,9 +5,9 @@ $ pip install simpleeval
 ```
 ---
 ## testg2c usage:
-Place `lenna.png` into this folder.  
+Assuming `Lenna.png` is in the root folder:  
 ```python
->>> from testg2c import *
+>>> from graytocolor.testg2c import *
 >>> showImage(lenna)
 >>> showImage(lenna_gray, "lenna - grayscale")
 >>> testg2c()
@@ -20,7 +20,7 @@ Place `lenna.png` into this folder.
 ---
 ## GrayToColor usage:  
 ```python
-import GrayToColor as g2c
+from graytocolor import GrayToColor as g2c
 g2c = g2c.GrayToColor(lenna_img)
 print("Valid operations: " + str(g2c.getValidOperations()))
 # x is intensity of original image
@@ -37,7 +37,7 @@ g2c.loadImage(another_img)
 ---
 ## UserFuncEval usage:  
 ```python
-import UserFuncEval as ufe
+from graytocolor import UserFuncEval as ufe
 ufe = ufe.UserFuncEval()
 ufe.s.names["my_var"] = list(range(12))
 if ufe.update("cos(my_var / 6 * pi)"):
