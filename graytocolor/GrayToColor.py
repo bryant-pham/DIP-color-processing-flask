@@ -6,9 +6,8 @@
 # some presets are missing a flip value, if that really matters
 
 import numpy as np
-from math import *
 import cv2
-import UserFuncEval as ufe
+from graytocolor import UserFuncEval as ufe
 from functools import reduce
 
 """
