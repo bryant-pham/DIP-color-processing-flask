@@ -7,13 +7,15 @@ import cv2
 from graytocolor import GrayToColor as g2c
 import datetime
 import time
+import logging
 
 app = Flask(__name__)
 CORS(app)
 
 photos = UploadSet('photos', IMAGES)
 
-DEV_URL = 'http://127.0.0.1:5000/'
+# DEV_URL = 'http://127.0.0.1:5000/'
+DEV_URL = 'http://192.241.234.235:5000/'
 PHOTO_URL = DEV_URL + 'static/img/'
 G2C_PHOTO_URL = DEV_URL + 'static/g2c/'
 
@@ -110,3 +112,8 @@ def smoothen_sharpen():
     operation = request.json['operation']
     return 'fk'
 
+
+if __name__ != '__main__':
+    gunicorn_logger = logging.getLogger('gunicorn.error')
+    app.logger.handlers = gunicorn_logger.handlers
+    app.logger.setLevel(gunicorn_logger.level)
