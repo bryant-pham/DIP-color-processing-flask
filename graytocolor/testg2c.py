@@ -13,11 +13,11 @@
 >>> interactive(4)  # uses preset 4
 """
 
-lenna_loc = "lenna.png"
+lenna_loc = "Lenna.png"
 
 import cv2
 import numpy as np
-import GrayToColor as g2c
+from graytocolor import GrayToColor as g2c
 
 lenna = cv2.imread(lenna_loc)
 lenna_gray = cv2.imread(lenna_loc, 0)
