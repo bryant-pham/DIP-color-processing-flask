@@ -2,7 +2,7 @@
 
 """
 # make sure lenna.png is in this directory
->>> from testg2c import *
+>>> from graytocolor.testg2c import *
 >>> showImage(lenna)
 >>> showImage(lenna_gray, "lenna - grayscale")
 >>> testg2c()
