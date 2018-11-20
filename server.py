@@ -1,6 +1,8 @@
 from flask import Flask, request, jsonify
 from flask_uploads import UploadSet, configure_uploads, IMAGES
 from flask_cors import CORS
+from os import listdir
+from os.path import isfile, join
 
 app = Flask(__name__)
 CORS(app)
@@ -37,6 +39,19 @@ def handle_invalid_usage(error):
     response = jsonify(error.to_dict())
     response.status_code = error.status_code
     return response
+
+
+@app.route('/images/upload', methods=['POST'])
+def image_upload():
+    if 'photo' in request.files:
+        filename = photos.save(request.files['photo'])
+    return get_images()
+
+@app.route('/images', methods=['GET'])
+def get_images():
+    image_file_names = [f for f in listdir('static/img') if isfile(join('static/img', f))]
+    result = list(map(lambda filename: {'file': filename, 'url': DEV_PHOTO_URL + filename}, image_file_names))
+    return jsonify(result)
 
 
 @app.route('/colormodeltransform', methods=['POST'])
