@@ -1,5 +1,3 @@
-# todo: add trackbars and make the image update automatically
-
 """
 # make sure lenna.png is in this directory
 >>> from graytocolor.testg2c import *
@@ -14,6 +12,7 @@
 """
 
 lenna_loc = "Lenna.png"
+# lenna_loc = "Lenna_Small.png"
 
 import cv2
 import numpy as np
@@ -85,6 +84,7 @@ def interactive(preset):
 		cv2.namedWindow(c)
 
 	def updateChannel(channel, func_getstr, arg_names):
+		cv2.imshow(processed_window_name, g2c.getProcessedImage())
 		def f(i):
 			d_args = dict()
 			for arg_name in arg_names:
@@ -95,7 +95,7 @@ def interactive(preset):
 			cv2.imshow(processed_window_name, g2c.getProcessedImage())
 			cv2.imshow(channel, g2c.processed_channels[channel])
 		return f
-	
+
 	if "generator" in current_preset:
 		g = current_preset["generator"]
 		g_args = g["args"]
@@ -103,14 +103,13 @@ def interactive(preset):
 		d = dict()
 		for arg_name in g_args:
 			d[arg_name] = arg_name
-		print("equation: " + g_f(**d))  # description
+		print("let x be the intensity of the pixel; the transform would be:")
+		print(g_f(**d))  # description
 		# print("how trackbar values are used: " + g["description"]) # replaced by the line above
 		for c in ch_names:
 			callback = updateChannel(c, g_f, g_args)
 			for k,v in g_args.items():
-				cv2.createTrackbar(
-					k, c, v["default_value"], v["max_value"], callback
-				)
+				cv2.createTrackbar(k, c, v["default_value"], v["max_value"], callback)
 			callback(None)  # processes this channel for the first time
 	else:
 		g2c.updateImage(g2c.presets[preset])
