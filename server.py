@@ -7,6 +7,7 @@ import cv2
 from graytocolor import GrayToColor as g2c
 from intensityslice import intensity_slice as int_slice
 from ColorspaceConversion import colorSpaceConversion as csc
+from smoothensharpen import smoothensharpen as sns
 import datetime
 import time
 import logging
@@ -22,6 +23,7 @@ PHOTO_URL = DEV_URL + 'static/img/'
 G2C_PHOTO_URL = DEV_URL + 'static/g2c/'
 CSC_PHOTO_URL = DEV_URL + 'static/csc/'
 INTSLICE_PHOTO_URL = DEV_URL + 'static/intslice/'
+SS_PHOTO_URL = DEV_URL + 'static/ss/'
 
 app.config['UPLOADED_PHOTOS_DEST'] = 'static/img'
 app.config['UPLOADED_FILES_URL'] = PHOTO_URL
@@ -148,9 +150,27 @@ def create_filename_with_ts(filename, extra=''):
 
 @app.route('/smoothensharpen', methods=['POST'])
 def smoothen_sharpen():
-    model_space = request.json['model_space']
-    operation = request.json['operation']
-    return 'fk'
+    filter = request.json['filter']
+    filename = request.json['filename']
+    image = get_image(filename)
+    sns_obj = sns.SmoothenSharpen(image)
+    sns_obj.loadKernel(filter)
+    sns_obj.applyFilter()
+    filtered_bgr = sns_obj.getProcessedBGR()
+    filtered_hls = sns_obj.getProcessedHLS()
+    filtered_diff = sns_obj.getProcessedDiff()
+    bgr_filename = create_filename_with_ts(filename, 'bgr')
+    hls_filename = create_filename_with_ts(filename, 'hls')
+    diff_filename = create_filename_with_ts(filename, 'diff')
+    cv2.imwrite('static/ss/' + bgr_filename, filtered_bgr)
+    cv2.imwrite('static/ss/' + hls_filename, filtered_hls)
+    cv2.imwrite('static/ss/' + diff_filename, filtered_diff)
+
+    return jsonify({'file': filename, 'urls': [
+        SS_PHOTO_URL + bgr_filename,
+        SS_PHOTO_URL + hls_filename,
+        SS_PHOTO_URL + diff_filename
+    ], 'notes': filter})
 
 
 if __name__ != '__main__':
