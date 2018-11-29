@@ -1,3 +1,4 @@
+import cv2
 import numpy as np
 
 
@@ -7,7 +8,7 @@ class IntSlice:
 
     def __init__(self, image, slicing):
         """Read input image and convert to grayscale image"""
-        self.input_image = image
+        self.input_image = cv2.imread(image, 0)
         """Set slice from input dict() of { slice (integer): RGB (list) }"""
         self.slice = slicing
 
@@ -16,6 +17,11 @@ class IntSlice:
         row = self.input_image.shape[0]
         col = self.input_image.shape[1]
         new_img = np.zeros([row, col])
+
+        for i in range(row):
+            for j in range(col):
+                new_img[i, j] = slice[-1]
+        del(slice[-1])
 
         counter = 0
         for key in self.slice:
