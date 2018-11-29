@@ -84,7 +84,6 @@ def interactive(preset):
 		cv2.namedWindow(c)
 
 	def updateChannel(channel, func_getstr, arg_names):
-		cv2.imshow(processed_window_name, g2c.getProcessedImage())
 		def f(i):
 			d_args = dict()
 			for arg_name in arg_names:
@@ -107,6 +106,7 @@ def interactive(preset):
 		print(g_f(**d))  # description
 		# print("how trackbar values are used: " + g["description"]) # replaced by the line above
 		for c in ch_names:
+			cv2.imshow(c, g2c.processed_channels[c])
 			callback = updateChannel(c, g_f, g_args)
 			for k,v in g_args.items():
 				cv2.createTrackbar(k, c, v["default_value"], v["max_value"], callback)
