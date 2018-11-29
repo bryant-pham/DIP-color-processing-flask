@@ -18,6 +18,11 @@ class IntSlice:
         col = self.input_image.shape[1]
         new_img = np.zeros([row, col])
 
+        for i in range(row):
+            for j in range(col):
+                new_img[i, j] = slice[-1]
+        del(slice[-1])
+
         counter = 0
         for key in self.slice:
             for i in range(row):
