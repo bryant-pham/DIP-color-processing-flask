@@ -98,8 +98,8 @@ class GrayToColor:
             "red":      "255-x"
         },
         2: {
-            "description": "purple tint",
-            "blue":     "x/3+170",
+            "description": "tint",
+            "blue":     "x/3+170",  # purple tint
             "green":    "x/3",
             "red":      "x/3+85",
             "generator": {
