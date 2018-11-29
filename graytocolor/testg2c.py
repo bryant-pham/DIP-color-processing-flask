@@ -119,6 +119,7 @@ def interactive(preset):
 		cv2.imshow(c, g2c.processed_channels[c])
 	
 	while cv2.waitKey(84) < 0:  # ~ 12 fps
+	# while cv2.waitKey(42) < 0:  # ~ 24 fps
 		pass
 
 	cv2.destroyAllWindows()
