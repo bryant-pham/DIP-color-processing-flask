@@ -64,7 +64,7 @@ class colorSpaceConversion:
                 G[x, y] = (var_g + m) * 255
                 B[x, y] = (var_b + m) * 255
 
-        return [B, G, R]
+        return [R, G, B]
 
     def RGB2HSV(self, image):
         # get the size of my image
