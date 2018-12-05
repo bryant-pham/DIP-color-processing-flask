@@ -107,10 +107,11 @@ def color_model_transform():
 @app.route('/intensityslice', methods=['POST'])
 def intensity_slice():
     slices = request.json['slices']
+    interval_colors = request.json['interval_colors']
     filename = request.json['filename']
     image = get_image(filename)
-    int_slice_obj = int_slice.IntSlice(image, slices)
-    img_result = int_slice_obj.get_sliced_img()
+    int_slice_obj = int_slice.IntSlice()
+    img_result = int_slice_obj.get_sliced_img(image, slices, interval_colors)
     result_filename = create_filename_with_ts(filename)
 
     cv2.imwrite('static/intslice/' + result_filename, img_result)
