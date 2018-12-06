@@ -17,8 +17,8 @@ CORS(app)
 
 photos = UploadSet('photos', IMAGES)
 
-# DEV_URL = 'http://127.0.0.1:5000/'
-DEV_URL = 'http://192.241.234.235:5000/'
+DEV_URL = 'http://127.0.0.1:5000/'
+# DEV_URL = 'http://192.241.234.235:5000/'
 PHOTO_URL = DEV_URL + 'static/img/'
 G2C_PHOTO_URL = DEV_URL + 'static/g2c/'
 CSC_PHOTO_URL = DEV_URL + 'static/csc/'
@@ -153,9 +153,10 @@ def create_filename_with_ts(filename, extra=''):
 def smoothen_sharpen():
     filter = request.json['filter']
     filename = request.json['filename']
+    filter_args = request.json['args']
     image = get_image(filename)
     sns_obj = sns.SmoothenSharpen(image)
-    sns_obj.loadKernel(filter)
+    sns_obj.loadKernel(filter, filter_args)
     sns_obj.applyFilter()
     filtered_bgr = sns_obj.getProcessedBGR()
     filtered_hls = sns_obj.getProcessedHLS()
