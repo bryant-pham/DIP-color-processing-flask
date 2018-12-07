@@ -106,7 +106,7 @@ class GrayToColor:
         b = self.fullContrastStretch(result[:, :, 0])
         g = self.fullContrastStretch(result[:, :, 1])
         r = self.fullContrastStretch(result[:, :, 2])
-        return 255 - cv2.merge((b, g, r))
+        return cv2.merge((b, g, r))
 
     def get_sin_value(self, x, shift_value, amplitude=1):
         return amplitude * abs(math.sin(math.radians(x) + math.radians(shift_value)))
