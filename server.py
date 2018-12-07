@@ -122,14 +122,11 @@ def intensity_slice():
 
 @app.route('/graytocolor', methods=['POST'])
 def gray_to_color_transform():
-    shift = request.json['phase_shifts']
+    shifts = request.json['phase_shifts']
     filename = request.json['filename']
     image = get_image(filename)
     g2c_result = g2c.GrayToColor(image)
-    g2c_result.updateImage({"red": "abs(sin(x/60+{s}))*255".format(s=shift["red"])})
-    g2c_result.updateImage({"green": "abs(sin(x/60+{s}))*255".format(s=shift["green"])})
-    g2c_result.updateImage({"blue": "abs(sin(x/60+{s}))*255".format(s=shift["blue"])})
-    result = g2c_result.getProcessedImage()
+    result = g2c_result.transform(image, shifts)
 
     result_filename = create_filename_with_ts(filename)
 

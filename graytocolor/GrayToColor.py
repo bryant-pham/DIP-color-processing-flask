@@ -6,6 +6,7 @@
 # some presets are missing a flip value, if that really matters
 
 import numpy as np
+import math
 import cv2
 from graytocolor import UserFuncEval as ufe
 from functools import reduce
@@ -89,6 +90,32 @@ class GrayToColor:
 
     def getValidOperations(self):
         return self.ufe["blue"].getValidOperations()
+
+    def transform(self, bgr_image, shifts):
+        gray = cv2.cvtColor(bgr_image, cv2.COLOR_BGR2GRAY)
+        result = np.empty((bgr_image.shape[0], bgr_image.shape[1], 3))
+        for x in range(gray.shape[0]):
+            for y in range(gray.shape[1]):
+                intensity = gray[x, y]
+                b = self.get_sin_value(intensity, shifts['blue']['shift'], shifts['blue']['amp'])
+                g = self.get_sin_value(intensity, shifts['green']['shift'], shifts['green']['amp'])
+                r = self.get_sin_value(intensity, shifts['red']['shift'], shifts['red']['amp'])
+                result[x, y, 0] = b
+                result[x, y, 1] = g
+                result[x, y, 2] = r
+        b = self.fullContrastStretch(result[:, :, 0])
+        g = self.fullContrastStretch(result[:, :, 1])
+        r = self.fullContrastStretch(result[:, :, 2])
+        return 255 - cv2.merge((b, g, r))
+
+    def get_sin_value(self, x, shift_value, amplitude=1):
+        return amplitude * abs(math.sin(math.radians(x) + math.radians(shift_value)))
+
+    def fullContrastStretch(self, image):
+        P = (255 / (image.max() - image.min()))
+        L = (-1 * image.min()) * P
+        image = (P * image) + L
+        return np.round(image)
 
     presets = {
         1: {
@@ -317,3 +344,4 @@ class GrayToColor:
             }
         }
     }
+
