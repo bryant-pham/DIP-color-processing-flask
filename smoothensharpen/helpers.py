@@ -23,6 +23,6 @@ sns = sns.SmoothenSharpen(lenna)
 sns.loadKernel("gaussian")
 sns.applyFilter()
 showImage(sns.getProcessedBGR())
-showImage(sns.getProcessedHLS())
+showImage(sns.getProcessedHSI())
 showImage(sns.getProcessedDiff())
 

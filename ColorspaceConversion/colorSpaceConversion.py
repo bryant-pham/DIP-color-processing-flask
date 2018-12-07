@@ -6,10 +6,11 @@ class colorSpaceConversion:
     def convertColorSpace(self, image, mode):
         # mode is 0 for RGB to HSV and 1 for HSV to RGB
         if (mode == 1):
-            image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-            return self.HSV2RGB(image)
+            hsi_image = self.rgb_to_hsi_image(image)
+            bgr_image = self.hsi_to_rgb_image(hsi_image)
+            return [bgr_image[:, :, 2], bgr_image[:, :, 1], bgr_image[:, :, 0]]
         else:
-            return self.RGB2HSV(image)
+            return self.RGB2HSI(image)
 
     def HSV2RGB(self, image):
         # get the size of my image
@@ -108,7 +109,7 @@ class colorSpaceConversion:
 
         return [H, S, V]
 
-    def RGB2HSI(self, image):
+    def RGB2HSI_raw(self, image):
         # get the size of my image
         height, width = image.shape[:2]
 
@@ -121,20 +122,19 @@ class colorSpaceConversion:
             for y in range(0, width):
                 # work on the H channel
 
-
                 # get each channel value at the designated pixel
                 blue = int(image[x, y, 0])
                 green = int(image[x, y, 1])
                 red = int(image[x, y, 2])
 
                 # top and bottom for arccos
-                if(red == green and green == blue):
+                if (red == green and green == blue):
                     H[x, y] = 0
                 else:
                     top = .5 * ((red - green) + (red - blue))
                     bottom = ((red - green) ** 2) + ((red - blue) * (green - blue))
                     bottom = np.sqrt(bottom)
-                    theta = np.arccos(top/bottom)
+                    theta = np.arccos(top / bottom)
                     if (not (math.isfinite(theta))):
                         theta = 0
                     theta = theta * (180 / np.pi)
@@ -154,32 +154,50 @@ class colorSpaceConversion:
 
                 # work on the I channel
                 I[x, y] = ((1 / 3) * (red + blue + green))
+        return [H, S, I]
 
-        # preform a full contrast stretch on all generated channels
-        H = self.fullContrastStetch(np.round(H))
-        S = self.fullContrastStetch(S)
-        I = self.fullContrastStetch(I)
-
+    def RGB2HSI(self, image):
+        hsi_raw = self.RGB2HSI_raw(image)
+        H = self.fullContrastStetch(np.round(hsi_raw[0]))
+        S = self.fullContrastStetch(hsi_raw[1])
+        I = self.fullContrastStetch(hsi_raw[2])
         return [H, S, I]
 
     def fullContrastStetch(self, image):
-        # get the size of my image
-        height, width = image.shape[:2]
-
-        # find the minimum and maximum
-        maximum = np.NINF
-        minimum = np.Inf
-        for x in range(0, height):
-            for y in range(0, width):
-                value = image[x, y]
-                if (value < minimum):
-                    minimum = value
-                if (value > maximum):
-                    maximum = value
-
-        # calculate P and L values
-        P = (255 / (maximum - minimum))
-        L = (-minimum) * P
-
+        P = (255 / (image.max() - image.min()))
+        L = (-1 * image.min()) * P
         image = (P * image) + L
         return np.round(image)
+
+    def rgb_to_hsi_image(self, bgr_image):
+        hsi_channels = self.RGB2HSI_raw(bgr_image)
+        hsi_image = cv2.merge((hsi_channels[0], hsi_channels[1], hsi_channels[2]))
+        return hsi_image
+
+    def hsi_to_rgb_image(self, hsi_image):
+        result = np.zeros(hsi_image.shape)
+        height, width = hsi_image.shape[:2]
+        for x in range(height):
+            for y in range(width):
+                hue = hsi_image[x, y, 0]
+                saturation = hsi_image[x, y, 1]
+                intensity = hsi_image[x, y, 2]
+                if hue < 120:
+                    blue = intensity * (1 - saturation)
+                    red = intensity * (1 + ((saturation * math.cos(math.radians(hue))) / math.cos(math.radians(60 - hue))))
+                    green = 3 * intensity - (red + blue)
+                elif hue < 240:
+                    hue = hue - 120
+                    red = intensity * (1 - saturation)
+                    green = intensity * (1 + ((saturation * math.cos(math.radians(hue))) / math.cos(math.radians(60 - hue))))
+                    blue = 3 * intensity - (red + green)
+                else:
+                    hue = hue - 240
+                    green = intensity * (1 - saturation)
+                    blue = intensity * (1 + ((saturation * math.cos(math.radians(hue))) / math.cos(math.radians(60 - hue))))
+                    red = 3 * intensity - (green + blue)
+                result[x, y, 0] = np.round(blue)
+                result[x, y, 1] = np.round(green)
+                result[x, y, 2] = np.round(red)
+        result[result > 255] = 255
+        return result

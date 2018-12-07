@@ -17,8 +17,8 @@ CORS(app)
 
 photos = UploadSet('photos', IMAGES)
 
-DEV_URL = 'http://127.0.0.1:5000/'
-# DEV_URL = 'http://192.241.234.235:5000/'
+# DEV_URL = 'http://127.0.0.1:5000/'
+DEV_URL = 'http://192.241.234.235:5000/'
 PHOTO_URL = DEV_URL + 'static/img/'
 G2C_PHOTO_URL = DEV_URL + 'static/g2c/'
 CSC_PHOTO_URL = DEV_URL + 'static/csc/'
@@ -159,7 +159,7 @@ def smoothen_sharpen():
     sns_obj.loadKernel(filter, filter_args)
     sns_obj.applyFilter()
     filtered_bgr = sns_obj.getProcessedBGR()
-    filtered_hls = sns_obj.getProcessedHLS()
+    filtered_hls = sns_obj.getProcessedHSI()
     filtered_diff = sns_obj.getProcessedDiff()
     bgr_filename = create_filename_with_ts(filename, 'bgr')
     hls_filename = create_filename_with_ts(filename, 'hls')
